@@ -1,1 +1,63 @@
+name: Java CI/CD Pipeline
 
+on:
+  push:
+    branches:
+      - main
+
+env:
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Cache Maven Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-
+
+      - name: Build Application
+        run: mvn clean install
+
+      - name: Run SonarQube Analysis
+        run: |
+          mvn sonar:sonar \
+          -Dsonar.projectKey=my-java-project \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Configure Kubernetes Access
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
+
+      - name: Verify Cluster Connection
+        run: kubectl get nodes
+
+      - name: Deploy Application
+        run: kubectl apply -f kubernetes/
+
+      - name: Verify Deployment
+        run: kubectl get all
