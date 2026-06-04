@@ -2,18 +2,15 @@ name: Python CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     strategy:
-      fail-fast: false
       matrix:
         python-version: ["3.8", "3.9"]
 
@@ -34,6 +31,4 @@ jobs:
           pip install pytest
 
       - name: Run Tests
-        run: |
-          cd src
-          pytest -v
+        run: pytest -v
