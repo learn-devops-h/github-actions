@@ -8,15 +8,11 @@ jobs:
   test:
     runs-on: self-hosted
 
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10"]
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-       - name: Verify Python
+      - name: Verify Python
         run: python --version
 
       - name: Install Dependencies
