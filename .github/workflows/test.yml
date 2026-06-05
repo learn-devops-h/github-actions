@@ -18,9 +18,9 @@ jobs:
       - name: Install Dependencies
         run: |
           python3 -m pip install --upgrade pip
-          pip install pytest
+          python3 -m pip install pytest
 
       - name: Run Tests
         run: |
           cd src
-          pytest test_addition.py -v
+          python3 -m pytest test_addition.py -v
